@@ -1,7 +1,7 @@
 import hashlib
 
 
-class merkle_tree:
+class MerkleTree:
     '''
     The merkle_tree object represents a Merkle tree and calculates
     Merkle roots, performs Merkle proofs
