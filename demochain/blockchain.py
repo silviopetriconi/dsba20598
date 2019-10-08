@@ -11,7 +11,7 @@ import json
 from utils import merkle
 
 GENESIS_ROOT_DATA = [binascii.unhexlify('B0CC04IB0CC04I')]
-GENESIS_ROOT_NONCE = binascii.unhexlify('')
+GENESIS_ROOT_NONCE = binascii.unhexlify('deadbeef')
 
 
 class Blockchain:
@@ -60,6 +60,8 @@ class Blockchain:
         # serializes a block to binary format. We're not
         # caring about endianness here so this is not portable
         # but it's good enough for demo.
+        
+        
         pass
 
     def _append_block(self, block):
@@ -87,13 +89,27 @@ class Blockchain:
         if block.height != len(self._blocks) + 1 or \
             block.prev != self._hashfunc(self._serialize(self.blocks[-1])):
             raise ValueError("Bad block: height or prev fields invalid.")
-
+        
         if block.prev not in self._blockindex:
             raise ValueError("Bad prev hash pointer: prev block not in chain.")
         if self._blockindex[block.prev] != len(self._blocks):
             raise ValueError("Can't insert block: prev isn't at end of chain.")
         
+        # then, check that difficulty is set appropriately
+        if self._difficulty != block.difficulty:
+            raise ValueError("Block difficulty is not at current level.")
+
+        if not self._blockhash_matches_difficulty(block):
+            raise ValueError("Block hash POW not adequate to difficulty.")
+
         return self._append_block(block)
+
+    def _blockhash_matches_difficulty(self, someblock):
+        # return TRUE if the hash matches the difficulty indicated in
+        # the block
+        # FIXME: we need to implement difficulty carefully. For now, four 
+        # leading zeros is enough.
+        return self._hashfunc(self._serialize(block)) < (1 << len(block.prev)*8-4) # TODO
 
     def get_block_by_hash(self, its_hash):
         '''
