@@ -16,6 +16,8 @@ RANDOMDATA_HEX = [
 RANDOMDATA_BINARY = [binascii.unhexlify(i) for i in RANDOMDATA_HEX]
 
 
+#---------------------- MERKLE TREE TESTS
+
 class TestMerkleTree(unittest.TestCase):
 
 	def test_empty_merkle_tree(self):
@@ -26,5 +28,10 @@ class TestMerkleTree(unittest.TestCase):
 		mtree = merkle_tree(RANDOMDATA_BINARY[0:2])
 		sha256 = lambda x : hashlib.sha256(x).digest()
 		hashes = [sha256(x) for x in RANDOMDATA_BINARY[0:2]]
-		self.assertEqual(mtree.digest(), hashlib.sha256(hashes[0]+hashes[1]).digest())
+		self.assertEqual(mtree.digest(), sha256(hashes[0]+hashes[1]))
+
+	def test_complicated_merkle_tree(self):
+		mtree = merkle_tree(RANDOMDATA_BINARY)
+		self.assertEqual(mtree.digest(), \
+			binascii.unhexlify('37c3ea4e9fdd9a2555c86100b6a658d6dd0990ee6400fe9399219fbaebd09d1b'))
 		
